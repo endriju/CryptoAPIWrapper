@@ -4,7 +4,39 @@
 This repository contains a solution to following Synthesia coding challenge
 https://www.notion.so/Synthesia-Backend-Tech-Challenge-52a82f750aed436fbefcf4d8263a97be
 
-Let's call the API implemented in this repo the "Wrapping API".
+For clarity, I will refer to the API implemented in this repo as **Wrapping API** and the https://hiring.api.synthesia.io/crypto/sign as **Synthesia API**.
+
+## How to run
+
+### Setup
+Add your API key into instance/application.cfg.py:
+```
+CRYPTO_API_KEY = '<YOUR_API_KEY>'
+```
+
+### Server
+```
+export FLASK_APP=app:app
+flask run
+
+or 
+
+./venv/bin/flask run
+```
+
+### Tests
+```
+python  -m pytest tests
+
+or 
+
+./venv/bin/python  -m pytest tests
+```
+
+### Integration tests
+```
+python ./tests/test_integration.py
+```
 
 ## Language and framework
 The API is implemented in Python3 using Flask library.
@@ -19,12 +51,17 @@ The API is implemented in Python3 using Flask library.
   - message is put at the end of the request processing queue
 - every 6 seconds, message from the head of the queue is retried against Synthesia crypto sign API
 
-## Details
+## Notes
 - the Wrapping API always returns 200
 - in case Synthesia API doesn't return 200 code, Wrapping API calculates approximate retry time for given message in seconds
+  - this is **queue size X 6** (which is the retry period)
 - this can be useful for the client to schedule the retry on it's end using this information
+- when the app is killed and restarted, it will remember the requests that were not yet retrieved by the Wrapped API client as they're stored on disk using shelve
 - I considered using Websocket to keep a connection live and push notification to client once message signature was ready
     - I decided to leave it out from this basic version, as I'd likely need more information about the number and types of clients that would be calling the Wrapping API to decide if Websockets were good fit for the use case
+
+### Assumptions
+- I assumed that the API will run on a single node, or in case of multiple nodes - behind a load balancer that supports request stickiness
 
 ## Request and response format
 
