@@ -100,7 +100,7 @@ def crypto_app(test_config=None):
         global backgroundThread
         backgroundThread = threading.Timer(POOL_TIME, background_thread_execute, ()).start()
 
-    if app.config['CRYPTO_API_KEY']:
+    if app.config['BACKGROUND_TASK']:
         background_thread_start()
         atexit.register(interrupt)
 
