@@ -100,8 +100,14 @@ Example response containing waiting to be retried:
 }
 ```
 
-## TODO
-- test reproducibility
-- document possible issues
-- background thread not started automatically, only after first request to the API
-
+## TODO / Issues
+- address relevant pylint errors/warnings:
+  - threading. Thread needs the target function
+  
+- refactor using create_app for easier tests setup
+- refactor using object-oriented model
+- investigate: sometimes background thread logs are not visible in console after app starts, making it look like it didn't start automatically; after first request to the API the logs appear;
+- tests to implement:
+  - mocking various responses from Synthesia API (429, 502, 500, 403) and test handling
+  - throw exception while calling Synthesia API
+  - test that background thread updates shelve and appends/pops items from queue

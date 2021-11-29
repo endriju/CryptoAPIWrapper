@@ -1,3 +1,5 @@
+"""Synthesia Crypto API Wrapper"""
+
 from flask import Flask, request
 import os
 import shelve
@@ -13,26 +15,23 @@ POOL_TIME = 6  # Seconds
 
 shelf = shelve.open("responses_shelf")
 queue = deque(shelf.keys())
-dataLock = threading.Lock()
+data_lock = threading.Lock()
 backgroundThread = threading.Thread()
 
 
 def crypto_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app: Flask = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
         app.config.from_pyfile('application.cfg.py', silent=True)
     else:
         app.config.from_mapping(test_config)
 
-    # keep debug on
-    app.debug = True
-
     if 'CRYPTO_API_KEY' not in app.config:
         raise ValueError('Crypto API key not found in the config. Add your API key into instance/application.cfg.py.')
 
     if 'BACKGROUND_TASK' not in app.config:
-        app.logger.warn(f'Running with background thread active by default.')
+        app.logger.info(f'Running with background thread active by default.')
         app.config['BACKGROUND_TASK'] = True
 
     try:
@@ -66,17 +65,18 @@ def crypto_app(test_config=None):
             logging.critical(e, exc_info=True)
 
         if r.status_code != requests.codes.ok:
-            wrapped_r = prepare_response(False, r.text, r.status_code)
+            wrapped_r = prepare_response(message, False, r.text, r.status_code)
             shelf[message] = wrapped_r
             queue.append(message)
         else:
-            wrapped_r = prepare_response(True, r.text, r.status_code)
+            wrapped_r = prepare_response(message, True, r.text, r.status_code)
             if store_when_success:
                 shelf[message] = wrapped_r
         return wrapped_r
 
-    def prepare_response(success, value, last_status_code):
+    def prepare_response(message, success, value, last_status_code):
         r = {
+            'message': message,
             'success': success,
             'value': value,
             'last_status_code': last_status_code
@@ -99,7 +99,7 @@ def crypto_app(test_config=None):
 
         global shelf
         global backgroundThread
-        with dataLock:
+        with data_lock:
             try:
                 top_message = queue.popleft()
                 app.logger.info(f'going to retry message: {top_message}s')
