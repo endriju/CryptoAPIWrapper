@@ -114,3 +114,5 @@ Example response containing waiting to be retried:
   - mocking various responses from Synthesia API (429, 502, 500, 403) and test handling
   - throw exception while calling Synthesia API
   - test that background thread updates shelve and appends/pops items from queue
+  - load test - at least 60 requests/minute as per spec (200-300 requests/minute to be sure)
+  
