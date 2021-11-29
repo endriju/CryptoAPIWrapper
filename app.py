@@ -20,7 +20,7 @@ backgroundThread = threading.Thread()
 
 
 def crypto_app(test_config=None):
-    app: Flask = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
         app.config.from_pyfile('application.cfg.py', silent=True)
@@ -63,6 +63,8 @@ def crypto_app(test_config=None):
             r = requests.get(SYNTHESIA_CRYPTO_SIGN_API_ENDPOINT, params=payload, headers=headers)
         except Exception as e:
             logging.critical(e, exc_info=True)
+
+        app.logger.info(f'response from Crypto API for {message}s: {r.status_code}')
 
         if r.status_code != requests.codes.ok:
             wrapped_r = prepare_response(message, False, r.text, r.status_code)

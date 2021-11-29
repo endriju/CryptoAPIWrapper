@@ -84,16 +84,18 @@ Should be identical to Synthesia Crypto API.
 Example response containing message signature:
 ```
 {
-  "last_status_code": 200, 
+  "last_status_code": 200,
+  "message":"test message"
   "success": true, 
-  "value": "En5u4Y_0KagCALQKh5rm36qzBzuiQGLCLL6d4161ivOrSeXNR_lN65mdd5Nw4ShgT6G5Tr8ZhewwOSwJQ5fdQHkph39bfrTu4sCIPafSehnnmrJ9eUs4cemZPVcBay_zlougEUWzBCCtvuFQBoz7bF4PFVLtAojjS9x-5EVZce_OyVN0no_Y3E09N3PeTcMPfIMgOOu-AVWqNdv-YByCXOtdCkze-5E_Wv8Y0QbrzhIoyZFPHxmXP6f5h4yUDx5qbqhNyIVOdOIEFJMjtnkHHmjsia9aD_JiCsHL3ULU01tbFefZBII31L0vED12FfKbyD52fphhAnxviyZaRRVXpA=="
+  "value": "asdasd=="
 }
 ```
 
 Example response containing waiting to be retried:
 ```
 {
-  "last_status_code": 502, 
+  "last_status_code": 502,
+  "message":"test message"
   "retry_in_seconds": 36, 
   "success": false, 
   "value": "Error 502: Failed to sign message due to simulated service degradation.\n"
@@ -107,6 +109,7 @@ Example response containing waiting to be retried:
 - refactor using create_app for easier tests setup
 - refactor using object-oriented model
 - investigate: sometimes background thread logs are not visible in console after app starts, making it look like it didn't start automatically; after first request to the API the logs appear;
+- investigate: duplicate lines logging issue of the background thread
 - tests to implement:
   - mocking various responses from Synthesia API (429, 502, 500, 403) and test handling
   - throw exception while calling Synthesia API
