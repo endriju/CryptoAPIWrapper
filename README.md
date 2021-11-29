@@ -9,14 +9,24 @@ For clarity, I will refer to the API implemented in this repo as **Wrapping API*
 ## How to run
 
 ### Setup
-Add your API key into instance/application.cfg.py:
+In the checkout out directory, create file instance/application.cfg.py and add following lines (use your API key):
 ```
 CRYPTO_API_KEY = '<YOUR_API_KEY>'
+BACKGROUND_TASK = True
+```
+
+Run following commands:
+
+```
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Server
 ```
-export FLASK_APP=app:app
+export FLASK_APP=app:crypto_app
 flask run
 
 or 
@@ -89,3 +99,9 @@ Example response containing waiting to be retried:
   "value": "Error 502: Failed to sign message due to simulated service degradation.\n"
 }
 ```
+
+## TODO
+- test reproducibility
+- document possible issues
+- background thread not started automatically, only after first request to the API
+

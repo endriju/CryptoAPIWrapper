@@ -25,6 +25,13 @@ def crypto_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
+    if 'BACKGROUND_TASK' not in app.config:
+        app.logger.info(f'Running with background thread active by default.')
+        app.config['BACKGROUND_TASK'] = True
+
+    if 'CRYPTO_API_KEY' not in app.config:
+        app.logger.info(f'Crypto API key not found in the config.')
+
     try:
         os.makedirs(app.instance_path)
     except OSError:
