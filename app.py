@@ -25,12 +25,15 @@ def crypto_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    if 'BACKGROUND_TASK' not in app.config:
-        app.logger.info(f'Running with background thread active by default.')
-        app.config['BACKGROUND_TASK'] = True
+    # keep debug on
+    app.debug = True
 
     if 'CRYPTO_API_KEY' not in app.config:
-        app.logger.info(f'Crypto API key not found in the config.')
+        raise ValueError('Crypto API key not found in the config. Add your API key into instance/application.cfg.py.')
+
+    if 'BACKGROUND_TASK' not in app.config:
+        app.logger.warn(f'Running with background thread active by default.')
+        app.config['BACKGROUND_TASK'] = True
 
     try:
         os.makedirs(app.instance_path)
@@ -55,9 +58,12 @@ def crypto_app(test_config=None):
     def crypto_sign_call(message, store_when_success=False):
         """Synthesia Crypto API client and response processing"""
 
-        payload = {'message': message}
-        headers = {'Authorization': app.config['CRYPTO_API_KEY']}
-        r = requests.get(SYNTHESIA_CRYPTO_SIGN_API_ENDPOINT, params=payload, headers=headers)
+        try:
+            payload = {'message': message}
+            headers = {'Authorization': app.config['CRYPTO_API_KEY']}
+            r = requests.get(SYNTHESIA_CRYPTO_SIGN_API_ENDPOINT, params=payload, headers=headers)
+        except Exception as e:
+            logging.critical(e, exc_info=True)
 
         if r.status_code != requests.codes.ok:
             wrapped_r = prepare_response(False, r.text, r.status_code)
@@ -110,19 +116,5 @@ def crypto_app(test_config=None):
     if app.config['BACKGROUND_TASK']:
         background_thread_start()
         atexit.register(interrupt)
-
-    @app.before_first_request
-    def initialize():
-        """Utility to display logs"""
-
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(
-            """%(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:%(message)s"""
-        )
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
 
     return app
